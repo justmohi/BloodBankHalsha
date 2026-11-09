@@ -13,6 +13,30 @@ const app = express();
 const httpServer = http.createServer(app);
 app.use(express.json());
 
+// CORS for the Firebase Hosting frontend calling this Render API.
+const allowedOrigins = new Set([
+  'https://blood-bank-halsha.web.app',
+  'https://blood-bank-halsha.firebaseapp.com',
+  ...(process.env.FRONTEND_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean)
+]);
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  }
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(origin && allowedOrigins.has(origin) ? 204 : 403);
+  }
+
+  next();
+});
+
+
 // Cloud Run and uptime probes use this endpoint without requiring authentication.
 app.get('/healthz', (_req, res) => res.status(200).json({ status: 'ok' }));
 
