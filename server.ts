@@ -13,7 +13,10 @@ const app = express();
 const httpServer = http.createServer(app);
 app.use(express.json());
 
-const PORT = 3000;
+// Cloud Run and uptime probes use this endpoint without requiring authentication.
+app.get('/healthz', (_req, res) => res.status(200).json({ status: 'ok' }));
+
+const PORT = Number(process.env.PORT) || 3000;
 const PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID || 'blood-bank-halsha';
 const INITIAL_ADMIN_EMAIL = 'mohistudio95@gmail.com';
 
@@ -59,24 +62,8 @@ async function verifyToken(req: Request): Promise<{
       isAdmin: decoded.admin === true || decoded.role === 'admin' || decoded.email?.toLowerCase() === INITIAL_ADMIN_EMAIL
     };
   } catch (err: any) {
-    // 2. Fallback: Parse unverified JWT payload for dev or identity verification
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-        if (payload.aud === PROJECT_ID && payload.sub) {
-          const email = payload.email?.toLowerCase() || null;
-          return {
-            uid: payload.sub,
-            email,
-            emailVerified: !!payload.email_verified,
-            isAdmin: payload.admin === true || payload.role === 'admin' || email === INITIAL_ADMIN_EMAIL
-          };
-        }
-      }
-    } catch (parseErr) {
-      console.warn('Token payload parse warning:', parseErr);
-    }
+    // Never trust an unverified JWT payload. Reject any token Firebase Admin cannot verify.
+    console.error('Firebase ID token verification failed:', err?.message || err);
     return null;
   }
 }
