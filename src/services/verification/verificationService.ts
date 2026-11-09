@@ -1,6 +1,7 @@
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '@/src/services/firebase/firebase';
 import { BlueVerificationApplication, DonationRecord } from '@/src/types';
+import { apiUrl } from '@/src/services/api/apiUrl';
 
 /**
  * Fetch the donor's current Blue Verification application if one exists
@@ -57,7 +58,7 @@ export async function submitBlueVerificationApplication(params: {
   }
 
   const token = await currentUser.getIdToken();
-  const res = await fetch('/api/donor/apply-blue-verification', {
+  const res = await fetch(apiUrl('/api/donor/apply-blue-verification'), {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
