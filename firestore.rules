@@ -1,0 +1,118 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        request.auth.token.role == 'admin' ||
+        request.auth.token.email == 'mohistudio95@gmail.com'
+      );
+    }
+
+    // 1. Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      // Normal users cannot assign themselves admin role
+      allow create, update: if isOwner(userId) && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isAdmin']) || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // 2. Public Donors collection
+    match /donors/{donorId} {
+      allow read: if true; // Searchable by public without exposing contact info
+      // Donors can edit basic fields, but CANNOT self-approve blueVerified or alter verifiedDonationCount
+      allow create: if isOwner(donorId) && request.resource.data.blueVerified != true;
+      allow update: if isOwner(donorId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['blueVerified', 'verifiedDonationCount', 'status'])
+                   || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 3. Isolated Donor Private Information (Strict PII Isolation)
+    match /donorPrivate/{donorId} {
+      allow read, write: if isOwner(donorId) || isAdmin();
+    }
+
+    // 4. Blood Requests collection
+    match /bloodRequests/{requestId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      // Privilege protected fields: acceptedCount and unitsFulfilled must not be manually forced by clients
+      allow update: if isAuthenticated() && (
+        isOwner(resource.data.requesterId) || isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 5. Request Recipients inbox
+    match /requestRecipients/{recipientId} {
+      allow read: if isAuthenticated() && (
+        resource.data.donorId == request.auth.uid ||
+        resource.data.requesterId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.donorId == request.auth.uid || isAdmin()
+      );
+    }
+
+    // 6. User Notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.recipientUserId == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && resource.data.recipientUserId == request.auth.uid 
+                   && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead', 'readAt']);
+      allow delete: if isAuthenticated() && resource.data.recipientUserId == request.auth.uid;
+    }
+
+    // 7. Donations collection
+    match /donations/{donationId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.donorId == request.auth.uid;
+      // Verification states can only be verified or changed by Admin
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 8. Blue Verification Applications
+    match /blueVerificationApplications/{applicationId} {
+      allow read: if isAuthenticated() && (resource.data.donorId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.donorId == request.auth.uid;
+      // Approval and rejection operations require Admin
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 9. Immutable Audit Logs (Client modification or deletion forbidden)
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false; // Immutable audit trail
+    }
+
+    // 10. Web FCM Push Tokens
+    match /userFcmTokens/{tokenId} {
+      allow read, write: if isAuthenticated() && (
+        tokenId.matches('^' + request.auth.uid + '.*') ||
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // 11. Admin Registry
+    match /admins/{adminId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account in Blood Bank Halsha",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 150 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "phoneNumber": { "type": "string", "maxLength": 20 },
+        "isDonor": { "type": "boolean" },
+        "role": { "type": "string", "enum": ["user", "donor", "admin", "moderator"] },
+        "isAdmin": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "isDonor", "role", "createdAt"]
+    },
+    "PublicDonor": {
+      "title": "PublicDonor",
+      "description": "Public voluntary donor profile searchable by blood group, district, and upazila without leaking contact numbers",
+      "type": "object",
+      "properties": {
+        "donorId": { "type": "string", "maxLength": 128 },
+        "fullName": { "type": "string", "maxLength": 100 },
+        "bloodGroup": { "type": "string", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "gender": { "type": "string", "enum": ["male", "female", "other"] },
+        "district": { "type": "string", "maxLength": 60 },
+        "upazila": { "type": "string", "maxLength": 60 },
+        "area": { "type": "string", "maxLength": 100 },
+        "isAvailable": { "type": "boolean" },
+        "lastDonationDate": { "type": "string", "maxLength": 64 },
+        "totalDonations": { "type": "number" },
+        "verifiedDonationCount": { "type": "number" },
+        "blueVerified": { "type": "boolean" },
+        "blueVerifiedAt": { "type": "string", "maxLength": 64 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["active", "inactive", "suspended"] },
+        "searchVisibility": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["donorId", "fullName", "bloodGroup", "district", "upazila", "isAvailable", "status"]
+    },
+    "DonorPrivate": {
+      "title": "DonorPrivate",
+      "description": "Sensitive donor contact information isolated from public search",
+      "type": "object",
+      "properties": {
+        "donorId": { "type": "string", "maxLength": 128 },
+        "mobileNumber": { "type": "string", "maxLength": 20 },
+        "dateOfBirth": { "type": "string", "maxLength": 30 },
+        "emergencyContact": { "type": "string", "maxLength": 20 },
+        "fullAddress": { "type": "string", "maxLength": 250 },
+        "email": { "type": "string", "maxLength": 150 },
+        "isPhoneVerified": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["donorId", "mobileNumber", "fullAddress"]
+    },
+    "BloodRequest": {
+      "title": "BloodRequest",
+      "description": "Emergency or scheduled blood request record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "requesterId": { "type": "string", "maxLength": 128 },
+        "requesterName": { "type": "string", "maxLength": 100 },
+        "requesterPhone": { "type": "string", "maxLength": 20 },
+        "patientName": { "type": "string", "maxLength": 100 },
+        "patientAge": { "type": "number" },
+        "patientGender": { "type": "string", "enum": ["male", "female", "child"] },
+        "bloodGroup": { "type": "string", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "unitsRequired": { "type": "number" },
+        "unitsFulfilled": { "type": "number" },
+        "hospitalName": { "type": "string", "maxLength": 150 },
+        "district": { "type": "string", "maxLength": 60 },
+        "upazila": { "type": "string", "maxLength": 60 },
+        "area": { "type": "string", "maxLength": 100 },
+        "requiredDate": { "type": "string", "maxLength": 30 },
+        "requiredTime": { "type": "string", "maxLength": 20 },
+        "emergencyLevel": { "type": "string", "enum": ["immediate", "within_24_hours", "scheduled"] },
+        "notes": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["open", "partially_fulfilled", "fulfilled", "cancelled", "expired"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["requesterId", "patientName", "bloodGroup", "unitsRequired", "hospitalName", "district", "requiredDate", "status"]
+    },
+    "RequestRecipient": {
+      "title": "RequestRecipient",
+      "description": "Recipient mapping and status for sent requests",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "requestId": { "type": "string", "maxLength": 128 },
+        "donorId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["pending", "accepted", "declined", "already_booked", "expired"] },
+        "respondedAt": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["requestId", "donorId", "status"]
+    },
+    "AppNotification": {
+      "title": "AppNotification",
+      "description": "User notification for alerts and updates",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "recipientUserId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "body": { "type": "string", "maxLength": 500 },
+        "type": { "type": "string" },
+        "requestId": { "type": "string", "maxLength": 128 },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["recipientUserId", "title", "body", "type", "isRead"]
+    },
+    "DonationRecord": {
+      "title": "DonationRecord",
+      "description": "Historical blood donation log for a verified donor",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "donorId": { "type": "string", "maxLength": 128 },
+        "donorName": { "type": "string", "maxLength": 100 },
+        "requestId": { "type": "string", "maxLength": 128 },
+        "donationDate": { "type": "string", "maxLength": 30 },
+        "hospitalName": { "type": "string", "maxLength": 150 },
+        "district": { "type": "string", "maxLength": 60 },
+        "bloodGroup": { "type": "string", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "status": { "type": "string", "enum": ["completed", "verified", "pending", "disputed", "cancelled"] },
+        "verifiedByAdminId": { "type": "string", "maxLength": 128 },
+        "verifiedAt": { "type": "string", "maxLength": 64 },
+        "notes": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["donorId", "donationDate", "bloodGroup"]
+    },
+    "BlueVerificationApplication": {
+      "title": "BlueVerificationApplication",
+      "description": "Application for official Blue Verified Badge requiring at least 3 verified donations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "donorId": { "type": "string", "maxLength": 128 },
+        "donorName": { "type": "string", "maxLength": 100 },
+        "bloodGroup": { "type": "string", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "district": { "type": "string", "maxLength": 60 },
+        "upazila": { "type": "string", "maxLength": 60 },
+        "verifiedDonationCount": { "type": "number" },
+        "status": { "type": "string", "enum": ["not_applied", "pending", "under_review", "approved", "rejected", "more_information_required"] },
+        "submissionDate": { "type": "string", "maxLength": 64 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "evidenceUrl": { "type": "string", "maxLength": 500 },
+        "reviewedBy": { "type": "string", "maxLength": 128 },
+        "reviewedAt": { "type": "string", "maxLength": 64 },
+        "reviewNotes": { "type": "string", "maxLength": 500 },
+        "rejectionReason": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["donorId", "donorName", "bloodGroup", "verifiedDonationCount", "status", "submissionDate"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Server-authored immutable audit trail for all admin operations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "adminUid": { "type": "string", "maxLength": 128 },
+        "adminEmail": { "type": "string", "maxLength": 150 },
+        "actionType": { "type": "string", "maxLength": 100 },
+        "targetReference": { "type": "string", "maxLength": 200 },
+        "previousStatus": { "type": "string", "maxLength": 100 },
+        "newStatus": { "type": "string", "maxLength": 100 },
+        "reason": { "type": "string", "maxLength": 500 },
+        "result": { "type": "string", "enum": ["success", "failure"] },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["adminUid", "adminEmail", "actionType", "targetReference", "result", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User authentication profile and role mapping"
+    },
+    "/donors/{donorId}": {
+      "schema": "PublicDonor",
+      "description": "Public voluntary donor registry"
+    },
+    "/donorPrivate/{donorId}": {
+      "schema": "DonorPrivate",
+      "description": "Protected private donor contact information"
+    },
+    "/bloodRequests/{requestId}": {
+      "schema": "BloodRequest",
+      "description": "Emergency blood requests placed by users"
+    },
+    "/requestRecipients/{recipientId}": {
+      "schema": "RequestRecipient",
+      "description": "Recipient mapping and status for sent requests"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "AppNotification",
+      "description": "In-app notifications for users and donors"
+    },
+    "/donations/{donationId}": {
+      "schema": "DonationRecord",
+      "description": "Completed blood donations history"
+    },
+    "/blueVerificationApplications/{applicationId}": {
+      "schema": "BlueVerificationApplication",
+      "description": "Blue verification application records and review history"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Protected administrative audit log stream"
+    }
+  }
+}

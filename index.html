@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blood Bank Halsha</title>
+    <meta name="description" content="Official web application for Blood Bank Halsha. Connect with voluntary blood donors, search donors by district and upazila, create and track emergency blood requests." />
+    <meta property="og:title" content="Blood Bank Halsha" />
+    <meta property="og:description" content="Official web application for Blood Bank Halsha. Connect with voluntary blood donors, search donors by district and upazila, create and track emergency blood requests." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Gracefully prevent unhandled rejection from dev server WebSocket disconnection in containerized proxy
+      window.addEventListener('unhandledrejection', function(event) {
+        if (
+          event.reason && (
+            (typeof event.reason.message === 'string' && (
+              event.reason.message.includes('WebSocket') ||
+              event.reason.message.includes('vite:ws') ||
+              event.reason.message.includes('closed without opened')
+            )) ||
+            (typeof event.reason.stack === 'string' && event.reason.stack.includes('@vite/client'))
+          )
+        ) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      });
+      window.addEventListener('error', function(event) {
+        if (
+          (typeof event.message === 'string' && (
+            event.message.includes('WebSocket') ||
+            event.message.includes('vite:ws') ||
+            event.message.includes('closed without opened')
+          )) ||
+          (typeof event.filename === 'string' && event.filename.includes('@vite/client'))
+        ) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

@@ -1,0 +1,6 @@
+{
+  "name": "Blood Bank Halsha",
+  "description": "Official web application for Blood Bank Halsha. Connect with voluntary blood donors, search donors by district and upazila, create and track emergency blood requests.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
