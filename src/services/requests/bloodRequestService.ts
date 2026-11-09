@@ -13,6 +13,7 @@ import {
 import { httpsCallable } from 'firebase/functions';
 import { db, functions, auth, handleFirestoreError, OperationType } from '@/src/services/firebase/firebase';
 import { BloodRequest, BloodGroup, EmergencyLevel, RequestStatus } from '@/src/types';
+import { apiUrl } from '@/src/services/api/apiUrl';
 
 export interface CreateBloodRequestParams {
   patientName: string;
@@ -282,7 +283,7 @@ export async function acceptBloodRequest(requestId: string): Promise<{ success: 
     throw new Error('Authentication required: Please sign in to accept this request.');
   }
   const token = await currentUser.getIdToken();
-  const res = await fetch(`/api/requests/${requestId}/accept`, {
+  const res = await fetch(apiUrl(`/api/requests/${requestId}/accept`), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -305,7 +306,7 @@ export async function declineBloodRequest(requestId: string): Promise<{ success:
     throw new Error('Authentication required: Please sign in to decline this request.');
   }
   const token = await currentUser.getIdToken();
-  const res = await fetch(`/api/requests/${requestId}/decline`, {
+  const res = await fetch(apiUrl(`/api/requests/${requestId}/decline`), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -326,7 +327,7 @@ export async function getIncomingDonorRequests(): Promise<any[]> {
   const currentUser = auth.currentUser;
   if (!currentUser) return [];
   const token = await currentUser.getIdToken();
-  const res = await fetch('/api/donor/incoming-requests', {
+  const res = await fetch(apiUrl('/api/donor/incoming-requests'), {
     headers: {
       Authorization: `Bearer ${token}`
     }
