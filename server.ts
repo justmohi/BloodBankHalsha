@@ -3,7 +3,7 @@ import http from 'node:http';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import dotenv from 'dotenv';
-import { initializeApp, getApps } from 'firebase-admin/app';
+import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
@@ -20,16 +20,22 @@ const PORT = Number(process.env.PORT) || 3000;
 const PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID || 'blood-bank-halsha';
 const INITIAL_ADMIN_EMAIL = 'mohistudio95@gmail.com';
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Admin SDK.
+// On Render, upload the service-account JSON as a Secret File and set
+// GOOGLE_APPLICATION_CREDENTIALS=/etc/secrets/service-account.json.
+// Locally/Google Cloud, the default credential chain remains available.
 try {
   if (getApps().length === 0) {
+    const hasExplicitCredentials = Boolean(process.env.GOOGLE_APPLICATION_CREDENTIALS);
     initializeApp({
+      ...(hasExplicitCredentials ? { credential: applicationDefault() } : {}),
       projectId: PROJECT_ID
     });
   }
   console.log(`Firebase Admin initialized for project: ${PROJECT_ID}`);
 } catch (err) {
-  console.warn('Firebase Admin default initialization notice:', err);
+  console.error('Firebase Admin initialization failed:', err);
+  throw err;
 }
 
 // In-memory cache for fast audit logs / admin roles if Firestore admin credentials are in dev mode
