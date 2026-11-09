@@ -1,4 +1,5 @@
 import { auth } from '@/src/services/firebase/firebase';
+import { apiUrl } from '@/src/services/api/apiUrl';
 import { 
   AdminOverviewStats, 
   UserProfile, 
@@ -31,7 +32,7 @@ export async function checkAdminClaims(): Promise<{
   canBootstrap: boolean;
 }> {
   const headers = await getAuthHeader();
-  const res = await fetch('/api/admin/check-claims', { headers });
+  const res = await fetch(apiUrl('/api/admin/check-claims'), { headers });
   if (!res.ok) {
     throw new Error('Failed to verify admin status.');
   }
@@ -47,7 +48,7 @@ export async function bootstrapAdmin(): Promise<{
   admin: any;
 }> {
   const headers = await getAuthHeader();
-  const res = await fetch('/api/admin/bootstrap', {
+  const res = await fetch(apiUrl('/api/admin/bootstrap'), {
     method: 'POST',
     headers: {
       ...headers,
@@ -73,7 +74,7 @@ export async function bootstrapAdmin(): Promise<{
  */
 export async function getAdminStats(): Promise<AdminOverviewStats> {
   const headers = await getAuthHeader();
-  const res = await fetch('/api/admin/stats', { headers });
+  const res = await fetch(apiUrl('/api/admin/stats'), { headers });
   if (!res.ok) {
     throw new Error('Failed to fetch dashboard metrics.');
   }
@@ -86,7 +87,7 @@ export async function getAdminStats(): Promise<AdminOverviewStats> {
 export async function getAdminUsers(search?: string): Promise<UserProfile[]> {
   const headers = await getAuthHeader();
   const query = search ? `?search=${encodeURIComponent(search)}` : '';
-  const res = await fetch(`/api/admin/users${query}`, { headers });
+  const res = await fetch(apiUrl(`/api/admin/users${query}`), { headers });
   if (!res.ok) {
     throw new Error('Failed to fetch users list.');
   }
@@ -103,7 +104,7 @@ export async function updateUserStatus(
   reason?: string
 ): Promise<void> {
   const headers = await getAuthHeader();
-  const res = await fetch(`/api/admin/users/${uid}/status`, {
+  const res = await fetch(apiUrl(`/api/admin/users/${uid}/status`), {
     method: 'POST',
     headers: {
       ...headers,
@@ -134,7 +135,7 @@ export async function getAdminDonors(filters?: {
   if (filters?.district) params.set('district', filters.district);
   if (filters?.blueVerified) params.set('blueVerified', 'true');
 
-  const res = await fetch(`/api/admin/donors?${params.toString()}`, { headers });
+  const res = await fetch(apiUrl(`/api/admin/donors?${params.toString()}`), { headers });
   if (!res.ok) {
     throw new Error('Failed to fetch donors list.');
   }
@@ -151,7 +152,7 @@ export async function updateDonorSearchVisibility(
   reason?: string
 ): Promise<void> {
   const headers = await getAuthHeader();
-  const res = await fetch(`/api/admin/donors/${donorId}/visibility`, {
+  const res = await fetch(apiUrl(`/api/admin/donors/${donorId}/visibility`), {
     method: 'POST',
     headers: {
       ...headers,
@@ -171,7 +172,7 @@ export async function updateDonorSearchVisibility(
  */
 export async function getAdminVerificationApplications(): Promise<BlueVerificationApplication[]> {
   const headers = await getAuthHeader();
-  const res = await fetch('/api/admin/blue-verification', { headers });
+  const res = await fetch(apiUrl('/api/admin/blue-verification'), { headers });
   if (!res.ok) {
     throw new Error('Failed to fetch verification applications.');
   }
@@ -188,7 +189,7 @@ export async function approveBlueVerification(id: string): Promise<{
   authoritativeCount: number;
 }> {
   const headers = await getAuthHeader();
-  const res = await fetch(`/api/admin/blue-verification/${id}/approve`, {
+  const res = await fetch(apiUrl(`/api/admin/blue-verification/${id}/approve`), {
     method: 'POST',
     headers: {
       ...headers,
@@ -211,7 +212,7 @@ export async function rejectBlueVerification(
   reason: string
 ): Promise<{ success: boolean; message: string }> {
   const headers = await getAuthHeader();
-  const res = await fetch(`/api/admin/blue-verification/${id}/reject`, {
+  const res = await fetch(apiUrl(`/api/admin/blue-verification/${id}/reject`), {
     method: 'POST',
     headers: {
       ...headers,
@@ -235,7 +236,7 @@ export async function revokeBlueBadge(
   reason: string
 ): Promise<{ success: boolean; message: string }> {
   const headers = await getAuthHeader();
-  const res = await fetch(`/api/admin/blue-verification/${donorId}/revoke`, {
+  const res = await fetch(apiUrl(`/api/admin/blue-verification/${donorId}/revoke`), {
     method: 'POST',
     headers: {
       ...headers,
@@ -265,7 +266,7 @@ export async function getAdminBloodRequests(filters?: {
   if (filters?.district) params.set('district', filters.district);
   if (filters?.bloodGroup) params.set('bloodGroup', filters.bloodGroup);
 
-  const res = await fetch(`/api/admin/requests?${params.toString()}`, { headers });
+  const res = await fetch(apiUrl(`/api/admin/requests?${params.toString()}`), { headers });
   if (!res.ok) {
     throw new Error('Failed to fetch blood requests.');
   }
@@ -278,7 +279,7 @@ export async function getAdminBloodRequests(filters?: {
  */
 export async function getAdminDonations(): Promise<DonationRecord[]> {
   const headers = await getAuthHeader();
-  const res = await fetch('/api/admin/donations', { headers });
+  const res = await fetch(apiUrl('/api/admin/donations'), { headers });
   if (!res.ok) {
     throw new Error('Failed to fetch donation records.');
   }
@@ -295,7 +296,7 @@ export async function verifyDonationRecord(
   notes?: string
 ): Promise<void> {
   const headers = await getAuthHeader();
-  const res = await fetch(`/api/admin/donations/${id}/verify`, {
+  const res = await fetch(apiUrl(`/api/admin/donations/${id}/verify`), {
     method: 'POST',
     headers: {
       ...headers,
@@ -315,7 +316,7 @@ export async function verifyDonationRecord(
  */
 export async function getAdminAuditLogs(): Promise<AuditLog[]> {
   const headers = await getAuthHeader();
-  const res = await fetch('/api/admin/audit-logs', { headers });
+  const res = await fetch(apiUrl('/api/admin/audit-logs'), { headers });
   if (!res.ok) {
     throw new Error('Failed to fetch audit logs.');
   }
