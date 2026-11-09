@@ -2,18 +2,18 @@ FROM node:22-slim
 
 WORKDIR /app
 
-# Install runtime and TypeScript runner dependencies. The app starts server.ts via tsx.
+# Install dependencies first to keep Docker layer caching effective.
 COPY package.json ./
 RUN npm install --include=dev
 
-# The Vite production bundle is built locally before building this image.
-# This keeps public VITE_* configuration in the compiled frontend and out of the image build logs.
-COPY server.ts tsconfig.json ./
-COPY dist ./dist
+# Copy application source, then build the Vite frontend inside the image.
+# Render environment variables prefixed with VITE_ must be configured in the service.
+COPY . .
+RUN npm run build
 
 ENV NODE_ENV=production
-ENV PORT=8080
 
-EXPOSE 8080
+# Render injects PORT at runtime.
+EXPOSE 10000
 
 CMD ["npm", "start"]
