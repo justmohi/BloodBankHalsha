@@ -90,6 +90,7 @@ export const DonorRegistrationPage: React.FC = () => {
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [isExistingDonor, setIsExistingDonor] = useState(false);
+  const [isEditingExistingProfile, setIsEditingExistingProfile] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [registeredResult, setRegisteredResult] = useState<PublicDonor | null>(null);
@@ -343,6 +344,58 @@ export const DonorRegistrationPage: React.FC = () => {
               View Donor Directory
             </Link>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Existing donors see a clean profile summary first; the full form is available on demand.
+  if (isExistingDonor && !isEditingExistingProfile) {
+    const profile = watch();
+    const displayPhoto = photoPreview || user?.photoURL;
+    const profileEligibility = calculateDonationEligibility(profile.lastDonationDate, profile.gender || 'male');
+    return (
+      <div className="min-h-screen bg-stone-50/60 py-10 sm:py-14 px-4 text-[#252525]">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <CheckCircle2 className="w-4 h-4" /> Registered Blood Donor
+            </div>
+            <h1 className="text-3xl font-extrabold">My Donor Profile</h1>
+            <p className="text-sm text-gray-600">Your donor information and availability at a glance.</p>
+          </div>
+
+          <section className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+            <div className="bg-gradient-to-r from-rose-50 to-white p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-5">
+              {displayPhoto ? (
+                <img src={displayPhoto} alt={profile.fullName || 'Donor'} className="h-24 w-24 rounded-2xl border-4 border-white object-cover shadow-sm" />
+              ) : (
+                <div className="h-24 w-24 rounded-2xl bg-rose-100 text-[#C62828] flex items-center justify-center text-2xl font-extrabold">{profile.bloodGroup || 'Donor'}</div>
+              )}
+              <div className="text-center sm:text-left">
+                <h2 className="text-2xl font-extrabold">{profile.fullName || user?.displayName || 'Donor'}</h2>
+                <p className="mt-1 text-sm text-gray-600">{profile.upazila}, {profile.district}</p>
+                <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
+                  <span className="rounded-full bg-rose-100 px-3 py-1 text-sm font-bold text-[#C62828]">{profile.bloodGroup}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${profile.isAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>{profile.isAvailable ? 'Available for Donation' : 'Currently Unavailable'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6 sm:p-8">
+              <div className="rounded-xl bg-stone-50 p-4"><p className="text-xs text-gray-500">Mobile Number</p><p className="mt-1 font-bold">{profile.mobileNumber || 'Not provided'}</p></div>
+              <div className="rounded-xl bg-stone-50 p-4"><p className="text-xs text-gray-500">Gender</p><p className="mt-1 font-bold capitalize">{profile.gender || 'Not specified'}</p></div>
+              <div className="rounded-xl bg-stone-50 p-4"><p className="text-xs text-gray-500">Date of Birth</p><p className="mt-1 font-bold">{profile.dateOfBirth || 'Not provided'}</p></div>
+              <div className="rounded-xl bg-stone-50 p-4"><p className="text-xs text-gray-500">Location</p><p className="mt-1 font-bold">{[profile.area, profile.upazila, profile.district].filter(Boolean).join(', ')}</p></div>
+              <div className="rounded-xl bg-stone-50 p-4"><p className="text-xs text-gray-500">Last Blood Donation</p><p className="mt-1 font-bold">{profile.lastDonationDate ? new Date(profile.lastDonationDate).toLocaleDateString() : 'Never donated / Not recorded'}</p></div>
+              <div className="rounded-xl bg-stone-50 p-4"><p className="text-xs text-gray-500">Donation Eligibility</p><p className={`mt-1 font-bold ${profileEligibility.isEligible ? 'text-emerald-700' : 'text-amber-700'}`}>{profileEligibility.isEligible ? 'Eligible to donate' : `Rest for ${profileEligibility.daysRemaining} more days`}</p></div>
+            </div>
+
+            <div className="border-t border-gray-100 p-6 sm:p-8 flex flex-col sm:flex-row gap-3">
+              <button type="button" onClick={() => setIsEditingExistingProfile(true)} className="flex-1 rounded-xl bg-[#C62828] px-5 py-3 text-sm font-bold text-white hover:bg-[#B71C1C] transition-colors">Edit Donor Information</button>
+              <Link to="/dashboard" className="flex-1 rounded-xl bg-gray-100 px-5 py-3 text-center text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors">Donor Dashboard</Link>
+            </div>
+          </section>
         </div>
       </div>
     );
