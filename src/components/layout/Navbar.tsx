@@ -22,7 +22,7 @@ export const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const { user, userProfile, signInWithGoogle, logout, loading } = useAuth();
+  const { user, userProfile, isDonor, signInWithGoogle, logout, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -131,6 +131,20 @@ export const Navbar: React.FC = () => {
               <PlusCircle className="w-4 h-4 text-emerald-600" />
               Become a Donor
             </Link>
+
+            {user && isDonor && (
+              <Link
+                to="/dashboard#incoming-requests"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  location.pathname === '/dashboard' && location.hash === '#incoming-requests'
+                    ? 'text-[#C62828] bg-[#FCE8E8]'
+                    : 'text-gray-700 hover:text-[#C62828] hover:bg-rose-50/50'
+                }`}
+              >
+                <HeartHandshake className="w-4 h-4 text-[#C62828]" />
+                Incoming Blood Requests
+              </Link>
+            )}
 
             <Link
               to="/blood-request"
@@ -437,6 +451,17 @@ export const Navbar: React.FC = () => {
                   <UserIcon className="w-4 h-4 text-gray-500" />
                   My Dashboard
                 </Link>
+
+                {isDonor && (
+                  <Link
+                    to="/dashboard#incoming-requests"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    <HeartHandshake className="w-4 h-4 text-[#C62828]" />
+                    Incoming Blood Requests
+                  </Link>
+                )}
 
                 <Link
                   to="/my-requests"
