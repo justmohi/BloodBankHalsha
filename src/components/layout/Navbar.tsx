@@ -81,9 +81,8 @@ export const Navbar: React.FC = () => {
             className="flex items-center gap-3 group focus:outline-hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-[#C62828] text-white shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform duration-300">
-              <Droplet className="w-7 h-7 fill-white stroke-[#C62828]" />
-              <Heart className="w-3.5 h-3.5 absolute fill-red-100 text-red-100 top-4" />
+            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white shadow-md shadow-red-500/15 group-hover:scale-105 transition-transform duration-300">
+              <img src="/blood-drop-logo.svg" alt="Blood Bank Halsha logo" className="w-10 h-10 object-contain" />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold tracking-tight text-[#252525] group-hover:text-[#C62828] transition-colors">
