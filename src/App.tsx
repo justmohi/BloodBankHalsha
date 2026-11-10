@@ -11,6 +11,7 @@ import { HomePage } from '@/src/pages/Home/HomePage';
 import { LoginPage } from '@/src/pages/Login/LoginPage';
 import { FindBloodPage } from '@/src/pages/FindBlood/FindBloodPage';
 import { DonorRegistrationPage } from '@/src/pages/DonorRegistration/DonorRegistrationPage';
+import { DonorCenterPage } from '@/src/pages/DonorCenter/DonorCenterPage';
 import { BloodRequestPage } from '@/src/pages/BloodRequest/BloodRequestPage';
 import { AboutPage } from '@/src/pages/About/AboutPage';
 import { PrivacyPage } from '@/src/pages/Privacy/PrivacyPage';
@@ -92,6 +93,14 @@ function MainAppLayout() {
                 <NotificationsPage />
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/donor-center"
+            element={
+              <ProtectedRoute>
+                <DonorCenterPage />
+              </ProtectedRoute>
+            }
           />
           <Route 
             path="/donor-registration" 
