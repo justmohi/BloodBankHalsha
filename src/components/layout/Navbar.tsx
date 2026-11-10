@@ -8,6 +8,7 @@ import {
   User as UserIcon, 
   LogOut, 
   Bell, 
+  HeartHandshake,
   PlusCircle, 
   Search, 
   ShieldAlert, 
@@ -227,6 +228,15 @@ export const Navbar: React.FC = () => {
                       >
                         <Droplet className="w-4 h-4 text-[#C62828]" />
                         My Blood Requests
+                      </Link>
+
+                      <Link
+                        to="/dashboard#incoming-requests"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-[#C62828] transition-colors"
+                      >
+                        <HeartHandshake className="w-4 h-4 text-[#C62828]" />
+                        Incoming Blood Requests
                       </Link>
 
                       <Link
