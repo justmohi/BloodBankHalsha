@@ -121,9 +121,9 @@ export const Navbar: React.FC = () => {
             </Link>
 
             <Link
-              to="/donor-registration"
+              to="/donor-center"
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                isActive('/donor-registration') 
+                isActive('/donor-center') 
                   ? 'text-[#C62828] bg-[#FCE8E8]' 
                   : 'text-gray-700 hover:text-[#C62828] hover:bg-rose-50/50'
               }`}
@@ -376,10 +376,10 @@ export const Navbar: React.FC = () => {
             </Link>
 
             <Link
-              to="/donor-registration"
+              to="/donor-center"
               onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-base font-semibold transition-colors ${
-                isActive('/donor-registration') ? 'text-[#C62828] bg-[#FCE8E8]' : 'text-gray-800 hover:bg-gray-50'
+                isActive('/donor-center') ? 'text-[#C62828] bg-[#FCE8E8]' : 'text-gray-800 hover:bg-gray-50'
               }`}
             >
               <PlusCircle className="w-5 h-5 text-emerald-600" />
