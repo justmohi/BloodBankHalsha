@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="blood" x1="24" y1="12" x2="104" y2="116" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EF4444"/>
+      <stop offset="1" stop-color="#B91C1C"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 8C52 28 25 57 25 82a39 39 0 0 0 78 0C103 57 76 28 64 8Z" fill="url(#blood)"/>
+  <path d="M64 44c-7-9-22-5-22 7 0 13 22 26 22 26s22-13 22-26c0-12-15-16-22-7Z" fill="#fff"/>
+</svg>
