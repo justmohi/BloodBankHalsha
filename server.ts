@@ -5,7 +5,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { Firestore } from '@google-cloud/firestore';
 
 dotenv.config();
 
@@ -43,6 +43,18 @@ app.get('/healthz', (_req, res) => res.status(200).json({ status: 'ok' }));
 const PORT = Number(process.env.PORT) || 3000;
 const PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID || 'blood-bank-halsha';
 const INITIAL_ADMIN_EMAIL = 'mohistudio95@gmail.com';
+const FIRESTORE_DATABASE_ID = 'ai-studio-android-bloodban-4dc823a1-6c76-42a4-945d-ceea16396db8';
+
+// Direct Google Cloud Firestore client supports an explicit databaseId.
+// Render uses GOOGLE_APPLICATION_CREDENTIALS from the configured Secret File.
+const firestoreDb = new Firestore({
+  projectId: PROJECT_ID,
+  databaseId: FIRESTORE_DATABASE_ID
+});
+
+function getFirestore() {
+  return firestoreDb;
+}
 
 // Initialize Firebase Admin SDK.
 // On Render, upload the service-account JSON as a Secret File and set
