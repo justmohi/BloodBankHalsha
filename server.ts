@@ -1033,8 +1033,18 @@ app.post('/api/requests/:requestId/accept', async (req: Request, res: Response) 
 
       // Check if donor profile exists
       const donorDoc = await transaction.get(db.collection('donors').doc(user.uid));
-      const donorName = donorDoc.exists ? donorDoc.data()?.fullName || 'Voluntary Donor' : 'Voluntary Donor';
-      const donorBloodGroup = donorDoc.exists ? donorDoc.data()?.bloodGroup || reqData.bloodGroup : reqData.bloodGroup;
+      if (!donorDoc.exists) {
+        throw new Error('Complete donor registration before accepting a blood request.');
+      }
+      const donorProfile = donorDoc.data()!;
+      if (donorProfile.isAvailable !== true || donorProfile.status === 'suspended') {
+        throw new Error('Your donor profile is not currently available for donation.');
+      }
+      const donorBloodGroup = String(donorProfile.bloodGroup || '');
+      if (donorBloodGroup !== String(reqData.bloodGroup || '')) {
+        throw new Error('This request is not assigned to your blood group.');
+      }
+      const donorName = donorProfile.fullName || 'Voluntary Donor';
 
       // Check if this donor has already accepted
       const recipientQuery = await db.collection('requestRecipients')
