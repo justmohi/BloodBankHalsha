@@ -1173,25 +1173,57 @@ app.get('/api/donor/incoming-requests', async (req: Request, res: Response) => {
   const db = getFirestore();
 
   try {
-    const recipSnap = await db.collection('requestRecipients')
-      .where('donorId', '==', user.uid)
-      .get();
-
-    const incoming: any[] = [];
-    for (const rDoc of recipSnap.docs) {
-      const rData = rDoc.data();
-      const reqDoc = await db.collection('bloodRequests').doc(rData.requestId).get();
-      if (reqDoc.exists) {
-        incoming.push({
-          recipientId: rDoc.id,
-          recipientStatus: rData.status,
-          respondedAt: rData.respondedAt,
-          request: { id: reqDoc.id, ...reqDoc.data() }
-        });
-      }
+    // Only active, available donor profiles can receive matching requests.
+    const donorDoc = await db.collection('donors').doc(user.uid).get();
+    if (!donorDoc.exists) {
+      return res.status(403).json({ error: 'Complete donor registration to receive incoming blood requests.' });
     }
 
-    incoming.sort((a, b) => new Date(b.request?.createdAt || 0).getTime() - new Date(a.request?.createdAt || 0).getTime());
+    const donor = donorDoc.data()!;
+    if (donor.isAvailable !== true || donor.status === 'suspended') {
+      return res.json({ incoming: [] });
+    }
+
+    const donorBloodGroup = String(donor.bloodGroup || '');
+    if (!donorBloodGroup) {
+      return res.status(400).json({ error: 'Your donor profile does not have a blood group.' });
+    }
+
+    // General emergency requests are broadcast by blood group. Exact group
+    // matching follows the current Blood Bank Halsha dispatch policy.
+    const requestSnap = await db.collection('bloodRequests')
+      .where('bloodGroup', '==', donorBloodGroup)
+      .get();
+
+    const recipientSnap = await db.collection('requestRecipients')
+      .where('donorId', '==', user.uid)
+      .get();
+    const recipientByRequest = new Map<string, any>();
+    recipientSnap.docs.forEach((doc: any) => {
+      recipientByRequest.set(doc.data().requestId, { id: doc.id, ...doc.data() });
+    });
+
+    const incoming: any[] = [];
+    requestSnap.docs.forEach((doc: any) => {
+      const request = { id: doc.id, ...doc.data() };
+      const status = request.status;
+      const remaining = Number(request.unitsRequired || 0) - Number(request.unitsFulfilled || 0);
+      if (!['pending', 'open', 'partially_fulfilled'].includes(status) || remaining <= 0) return;
+
+      const recipient = recipientByRequest.get(doc.id);
+      if (recipient?.status === 'declined') return;
+
+      incoming.push({
+        recipientId: recipient?.id || null,
+        recipientStatus: recipient?.status || 'pending',
+        respondedAt: recipient?.respondedAt || null,
+        request
+      });
+    });
+
+    incoming.sort((a, b) =>
+      new Date(b.request.createdAt || 0).getTime() - new Date(a.request.createdAt || 0).getTime()
+    );
     return res.json({ incoming });
   } catch (err: any) {
     console.error('Fetch incoming requests error:', err);
