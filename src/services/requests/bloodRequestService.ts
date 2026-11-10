@@ -353,7 +353,15 @@ export async function getIncomingDonorRequests(): Promise<any[]> {
  * Fetch a blood request's full details through the authenticated backend.
  * The backend only returns private fields to the requester or an eligible donor.
  */
-export async function getBloodRequestDetails(requestId: string): Promise<BloodRequest> {
+export interface AcceptedDonorContact {
+  donorId: string;
+  donorName: string;
+  bloodGroup: string;
+  mobileNumber: string | null;
+  acceptedAt: string | null;
+}
+
+export async function getBloodRequestDetails(requestId: string): Promise<{ request: BloodRequest; acceptedDonors: AcceptedDonorContact[] }> {
   const currentUser = auth.currentUser;
   if (!currentUser) throw new Error('Please sign in to view this blood request.');
   const token = await currentUser.getIdToken();
@@ -362,5 +370,8 @@ export async function getBloodRequestDetails(requestId: string): Promise<BloodRe
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to load blood request details.');
-  return data.request as BloodRequest;
+  return {
+    request: data.request as BloodRequest,
+    acceptedDonors: Array.isArray(data.acceptedDonors) ? data.acceptedDonors : []
+  };
 }
