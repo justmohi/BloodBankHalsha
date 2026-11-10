@@ -1185,7 +1185,8 @@ app.get('/api/requests/:requestId/details', async (req: Request, res: Response) 
     if (!requestDoc.exists) return res.status(404).json({ error: 'Blood request not found.' });
 
     const request = { id: requestDoc.id, ...requestDoc.data() };
-    let authorized = request.requesterId === user.uid;
+    const isRequester = request.requesterId === user.uid;
+    let authorized = isRequester;
 
     if (!authorized) {
       const donorDoc = await db.collection('donors').doc(user.uid).get();
@@ -1204,7 +1205,35 @@ app.get('/api/requests/:requestId/details', async (req: Request, res: Response) 
     }
 
     if (!authorized) return res.status(403).json({ error: 'You are not authorized to view this request.' });
-    return res.json({ request });
+
+    // Only the requester may see contact numbers, and only for donors
+    // whose acceptance has been recorded as accepted.
+    let acceptedDonors: any[] = [];
+    if (isRequester) {
+      const acceptedSnap = await db.collection('requestRecipients')
+        .where('requestId', '==', requestDoc.id)
+        .where('status', '==', 'accepted')
+        .get();
+
+      acceptedDonors = await Promise.all(acceptedSnap.docs.map(async (recipientDoc: any) => {
+        const recipient = recipientDoc.data();
+        const [publicDoc, privateDoc] = await Promise.all([
+          db.collection('donors').doc(recipient.donorId).get(),
+          db.collection('donorPrivate').doc(recipient.donorId).get()
+        ]);
+        const publicProfile = publicDoc.exists ? publicDoc.data()! : {};
+        const privateProfile = privateDoc.exists ? privateDoc.data()! : {};
+        return {
+          donorId: recipient.donorId,
+          donorName: publicProfile.fullName || 'Accepted Donor',
+          bloodGroup: publicProfile.bloodGroup || request.bloodGroup,
+          mobileNumber: privateProfile.mobileNumber || null,
+          acceptedAt: recipient.respondedAt || recipient.updatedAt || null
+        };
+      }));
+    }
+
+    return res.json({ request, acceptedDonors });
   } catch (err: any) {
     console.error('Request details fetch error:', err);
     return res.status(500).json({ error: 'Failed to load request details.' });
