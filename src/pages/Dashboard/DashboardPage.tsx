@@ -533,7 +533,7 @@ export const DashboardPage: React.FC = () => {
 
         {/* Incoming Emergency Requests for Registered Donor */}
         {donorProfile && (
-          <div className="space-y-4">
+          <div id="incoming-requests" className="space-y-4 scroll-mt-24">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
