@@ -5,7 +5,7 @@ import {
   setPersistence, 
   browserLocalPersistence 
 } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions } from 'firebase/functions';
 
@@ -29,8 +29,12 @@ setPersistence(auth, browserLocalPersistence).catch((err) => {
   console.warn('Unable to enable browserLocalPersistence in this browser context:', err);
 });
 
-// Initialize Firestore, Storage & Functions
-export const db = getFirestore(app);
+// Initialize the existing AI Studio-created Enterprise Native-mode database.
+// Keep this ID in sync with the Android app and the Render backend.
+export const FIRESTORE_DATABASE_ID = 'ai-studio-android-bloodban-4dc823a1-6c76-42a4-945d-ceea16396db8';
+export const db = initializeFirestore(app, {}, FIRESTORE_DATABASE_ID);
+
+// Initialize Storage & Functions
 export const storage = getStorage(app);
 export const functions = getFunctions(app, 'asia-southeast1');
 
