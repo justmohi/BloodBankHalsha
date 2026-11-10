@@ -336,5 +336,15 @@ export async function getIncomingDonorRequests(): Promise<any[]> {
     throw new Error('Failed to load incoming requests.');
   }
   const data = await res.json();
-  return data.requests || [];
+  // Backend returns { incoming: [{ request, recipientStatus, ... }] }.
+  // Flatten to the BloodRequest shape consumed by Dashboard cards.
+  const incoming = Array.isArray(data.incoming) ? data.incoming : (Array.isArray(data.requests) ? data.requests : []);
+  return incoming
+    .filter((item: any) => item && item.request)
+    .map((item: any) => ({
+      ...item.request,
+      recipientId: item.recipientId || null,
+      recipientStatus: item.recipientStatus || 'pending',
+      respondedAt: item.respondedAt || null
+    }));
 }
