@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, Droplet, MapPin, Hospital, Phone, UserRound, AlertCircle } from 'lucide-react';
 import { BloodRequest } from '@/src/types';
-import { getBloodRequestDetails } from '@/src/services/requests/bloodRequestService';
+import { AcceptedDonorContact, getBloodRequestDetails } from '@/src/services/requests/bloodRequestService';
 
 export const BloodRequestDetailsPage: React.FC = () => {
   const { requestId = '' } = useParams<{ requestId: string }>();
   const [request, setRequest] = useState<BloodRequest | null>(null);
+  const [acceptedDonors, setAcceptedDonors] = useState<AcceptedDonorContact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,7 +15,12 @@ export const BloodRequestDetailsPage: React.FC = () => {
     let active = true;
     setLoading(true);
     getBloodRequestDetails(requestId)
-      .then((data) => { if (active) setRequest(data); })
+      .then((data) => {
+        if (active) {
+          setRequest(data.request);
+          setAcceptedDonors(data.acceptedDonors);
+        }
+      })
       .catch((err: any) => { if (active) setError(err.message || 'Unable to load request details.'); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -70,6 +76,30 @@ export const BloodRequestDetailsPage: React.FC = () => {
             <p className="text-sm text-gray-600">{request.requesterName || 'Requester'}</p>
             {request.requesterPhone ? <a href={`tel:${request.requesterPhone}`} className="inline-flex items-center gap-2 font-semibold text-[#C62828]"><Phone className="w-4 h-4" /> {request.requesterPhone}</a> : <p className="text-sm text-gray-500">Phone number not provided.</p>}
           </div>
+
+          {acceptedDonors.length > 0 && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 space-y-3">
+              <div>
+                <h2 className="font-bold text-emerald-900">Accepted Donor Contact</h2>
+                <p className="text-xs text-emerald-800 mt-1">Only donors who accepted this request are listed here.</p>
+              </div>
+              {acceptedDonors.map((donor) => (
+                <div key={donor.donorId} className="rounded-lg bg-white border border-emerald-100 p-3 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{donor.donorName}</p>
+                    <p className="text-xs text-gray-500">Blood Group: {donor.bloodGroup}</p>
+                  </div>
+                  {donor.mobileNumber ? (
+                    <a href={`tel:${donor.mobileNumber}`} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-800">
+                      <Phone className="w-4 h-4" /> {donor.mobileNumber}
+                    </a>
+                  ) : (
+                    <span className="text-xs text-amber-700">Donor phone number not available</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
 
           <p className="text-xs text-gray-400">Created: {request.createdAt ? new Date(request.createdAt).toLocaleString() : 'Not available'}</p>
         </section>
