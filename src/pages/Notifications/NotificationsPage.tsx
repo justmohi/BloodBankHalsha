@@ -369,8 +369,8 @@ export const NotificationsPage: React.FC = () => {
                       {(notif.requestId || notif.relatedRequestId) && (
                         <div className="pt-2 flex items-center gap-3">
                           <Link
-                            to="/my-requests"
-                            onClick={(e) => e.stopPropagation()}
+                            to={`/requests/${encodeURIComponent(notif.requestId || notif.relatedRequestId || '')}`}
+                            onClick={(e) => { e.stopPropagation(); if (!notif.isRead) handleMarkAsRead(notif); }}
                             className="inline-flex items-center gap-1 text-xs font-bold text-[#C62828] hover:underline"
                           >
                             View Request Details
