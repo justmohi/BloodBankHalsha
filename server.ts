@@ -1172,6 +1172,46 @@ app.post('/api/requests/:requestId/decline', async (req: Request, res: Response)
 });
 
 /**
+ * GET /api/requests/:requestId/details
+ * Returns private request details only to the requester or an eligible matching donor.
+ */
+app.get('/api/requests/:requestId/details', async (req: Request, res: Response) => {
+  const user = await verifyToken(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required.' });
+
+  try {
+    const db = getFirestore();
+    const requestDoc = await db.collection('bloodRequests').doc(req.params.requestId).get();
+    if (!requestDoc.exists) return res.status(404).json({ error: 'Blood request not found.' });
+
+    const request = { id: requestDoc.id, ...requestDoc.data() };
+    let authorized = request.requesterId === user.uid;
+
+    if (!authorized) {
+      const donorDoc = await db.collection('donors').doc(user.uid).get();
+      const donor = donorDoc.exists ? donorDoc.data()! : null;
+      const recipientSnap = await db.collection('requestRecipients')
+        .where('requestId', '==', requestDoc.id)
+        .where('donorId', '==', user.uid)
+        .limit(1)
+        .get();
+      const isAssigned = !recipientSnap.empty;
+      const isEligibleMatch = !!donor &&
+        donor.isAvailable === true &&
+        donor.status !== 'suspended' &&
+        String(donor.bloodGroup || '') === String(request.bloodGroup || '');
+      authorized = isAssigned || isEligibleMatch;
+    }
+
+    if (!authorized) return res.status(403).json({ error: 'You are not authorized to view this request.' });
+    return res.json({ request });
+  } catch (err: any) {
+    console.error('Request details fetch error:', err);
+    return res.status(500).json({ error: 'Failed to load request details.' });
+  }
+});
+
+/**
  * GET /api/donor/incoming-requests
  * Fetches blood requests targeting the authenticated donor
  */
