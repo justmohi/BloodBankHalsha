@@ -27,7 +27,8 @@
     "react-hook-form": "^7.91.0",
     "react-router-dom": "^7.18.5",
     "vite": "^8.3.0",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "@google-cloud/firestore": "^7.11.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
