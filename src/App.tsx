@@ -18,6 +18,7 @@ import { TermsPage } from '@/src/pages/Terms/TermsPage';
 import { DashboardPage } from '@/src/pages/Dashboard/DashboardPage';
 import { NotificationsPage } from '@/src/pages/Notifications/NotificationsPage';
 import { MyRequestsPage } from '@/src/pages/MyRequests/MyRequestsPage';
+import { BloodRequestDetailsPage } from '@/src/pages/RequestDetails/BloodRequestDetailsPage';
 
 // Admin Dashboard Pages
 import { AdminLayout } from '@/src/pages/Admin/AdminLayout';
@@ -67,6 +68,14 @@ function MainAppLayout() {
                 <DashboardPage />
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/requests/:requestId"
+            element={
+              <ProtectedRoute>
+                <BloodRequestDetailsPage />
+              </ProtectedRoute>
+            }
           />
           <Route 
             path="/my-requests" 
