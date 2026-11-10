@@ -11,9 +11,8 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-[#C62828] text-white shadow-md">
-                <Droplet className="w-6 h-6 fill-white stroke-[#C62828]" />
-                <Heart className="w-3 h-3 absolute fill-red-100 text-red-100 top-3" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white shadow-sm">
+                <img src="/blood-drop-logo.svg" alt="Blood Bank Halsha logo" className="w-9 h-9 object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-white tracking-tight">
