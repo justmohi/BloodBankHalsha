@@ -5,6 +5,10 @@ import {
   getRedirectResult, 
   signOut, 
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
   updateProfile,
   NextOrObserver
 } from 'firebase/auth';
@@ -12,6 +16,33 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, googleProvider, db, storage, handleFirestoreError, OperationType } from '@/src/services/firebase/firebase';
 import { UserProfile, PublicDonor } from '@/src/types';
+
+export async function signUpWithEmailAuth(name: string, email: string, password: string): Promise<FirebaseUser> {
+  const cleanName = name.trim();
+  const cleanEmail = email.trim().toLowerCase();
+  if (cleanName.length < 2) throw new Error('Name must contain at least 2 characters.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) throw new Error('Enter a valid email address.');
+  if (password.length < 8) throw new Error('Password must be at least 8 characters.');
+  const credential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
+  await updateProfile(credential.user, { displayName: cleanName });
+  try {
+    await sendEmailVerification(credential.user);
+  } catch (error) {
+    console.warn('Email verification delivery notice:', error);
+  }
+  return credential.user;
+}
+
+export async function signInWithEmailAuth(email: string, password: string): Promise<FirebaseUser> {
+  const credential = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
+  return credential.user;
+}
+
+export async function sendPasswordReset(email: string): Promise<void> {
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail) throw new Error('Enter your email address first.');
+  await sendPasswordResetEmail(auth, cleanEmail);
+}
 
 export interface UserAuthSyncResult {
   profile: UserProfile;
