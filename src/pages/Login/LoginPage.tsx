@@ -7,7 +7,7 @@ export const LoginPage: React.FC = () => {
   const { user, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, loading, error, clearError, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [mode, setMode] = useState<'login' | 'signup'>(() => new URLSearchParams(location.search).get('mode') === 'signup' ? 'signup' : 'login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
