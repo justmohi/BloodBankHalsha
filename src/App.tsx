@@ -6,6 +6,7 @@ import { Footer } from '@/src/components/layout/Footer';
 import { WebPushPermissionPrompt } from '@/src/components/notifications/WebPushPermissionPrompt';
 import { ProtectedRoute } from '@/src/components/common/ProtectedRoute';
 import { AdminRoute } from '@/src/components/common/AdminRoute';
+import { SeoManager } from '@/src/components/seo/SeoManager';
 
 // Public & User Pages
 import { HomePage } from '@/src/pages/Home/HomePage';
@@ -51,9 +52,10 @@ function MainAppLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#252525] font-sans antialiased selection:bg-[#FCE8E8] selection:text-[#C62828]">
+      <SeoManager />
       {!isAdminRoute && <Navbar />}
       {!isAdminRoute && <WebPushPermissionPrompt />}
-      
+
       <main className="flex-1 flex flex-col">
         <Routes>
           {/* Public Routes */}
@@ -65,80 +67,17 @@ function MainAppLayout() {
           <Route path="/terms" element={<TermsPage />} />
 
           {/* Protected Routes requiring authentication */}
-          <Route
-            path="/account-settings"
-            element={
-              <ProtectedRoute>
-                <AccountSettingsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route
-            path="/requests/:requestId"
-            element={
-              <ProtectedRoute>
-                <BloodRequestDetailsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route 
-            path="/my-requests" 
-            element={
-              <ProtectedRoute>
-                <MyRequestsPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/notifications" 
-            element={
-              <ProtectedRoute>
-                <NotificationsPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route
-            path="/donor-center"
-            element={
-              <ProtectedRoute>
-                <DonorCenterPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route 
-            path="/donor-registration" 
-            element={
-              <ProtectedRoute>
-                <DonorRegistrationPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/blood-request" 
-            element={
-              <ProtectedRoute>
-                <BloodRequestPage />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/account-settings" element={<ProtectedRoute><AccountSettingsPage /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/requests/:requestId" element={<ProtectedRoute><BloodRequestDetailsPage /></ProtectedRoute>} />
+          <Route path="/my-requests" element={<ProtectedRoute><MyRequestsPage /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+          <Route path="/donor-center" element={<ProtectedRoute><DonorCenterPage /></ProtectedRoute>} />
+          <Route path="/donor-registration" element={<ProtectedRoute><DonorRegistrationPage /></ProtectedRoute>} />
+          <Route path="/blood-request" element={<ProtectedRoute><BloodRequestPage /></ProtectedRoute>} />
 
           {/* Admin Command Console Nested Routes */}
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminLayout />
-              </AdminRoute>
-            }
-          >
+          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<AdminOverviewPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="donors" element={<AdminDonorsPage />} />
