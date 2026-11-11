@@ -207,9 +207,16 @@ export async function updateAccountProfile(params: UpdateAccountProfileParams): 
   await updateDoc(doc(db, 'users', currentUser.uid), {
     displayName,
     photoURL,
-    phoneNumber: phoneNumber || null,
     updatedAt: now
   });
+
+  // Store non-donor contact numbers in a private owner-only document.
+  if (!((await getDoc(doc(db, 'donors', currentUser.uid))).exists())) {
+    await setDoc(doc(db, 'userPrivate', currentUser.uid), {
+      mobileNumber: phoneNumber || null,
+      updatedAt: now
+    }, { merge: true });
+  }
 
   // Keep donor-facing public name/photo synchronized; keep the phone in private data only.
   const donorRef = doc(db, 'donors', currentUser.uid);
