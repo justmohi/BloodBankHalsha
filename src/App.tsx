@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/src/contexts/AuthContext';
 import { Navbar } from '@/src/components/layout/Navbar';
 import { Footer } from '@/src/components/layout/Footer';
+import { WebPushPermissionPrompt } from '@/src/components/notifications/WebPushPermissionPrompt';
 import { ProtectedRoute } from '@/src/components/common/ProtectedRoute';
 import { AdminRoute } from '@/src/components/common/AdminRoute';
 
@@ -51,6 +52,7 @@ function MainAppLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#252525] font-sans antialiased selection:bg-[#FCE8E8] selection:text-[#C62828]">
       {!isAdminRoute && <Navbar />}
+      {!isAdminRoute && <WebPushPermissionPrompt />}
       
       <main className="flex-1 flex flex-col">
         <Routes>
