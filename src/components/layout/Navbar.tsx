@@ -72,33 +72,33 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-rose-100 shadow-xs transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-6">
+        <div className="flex items-center justify-between min-h-16 sm:min-h-18 xl:h-20 gap-2">
           
           {/* Brand Logo */}
           <Link 
             to="/" 
-            className="flex items-center gap-3 group focus:outline-hidden"
+            className="flex items-center gap-2 sm:gap-3 min-w-0 shrink-0 group focus:outline-hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white shadow-md shadow-red-500/15 group-hover:scale-105 transition-transform duration-300">
-              <img src="/blood-drop-logo.svg" alt="Blood Bank Halsha logo" className="w-10 h-10 object-contain" />
+            <div className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 xl:w-12 xl:h-12 shrink-0 rounded-2xl bg-white shadow-md shadow-red-500/15 group-hover:scale-105 transition-transform duration-300">
+              <img src="/blood-drop-logo.svg" alt="Blood Bank Halsha logo" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold tracking-tight text-[#252525] group-hover:text-[#C62828] transition-colors">
+              <span className="text-base sm:text-lg xl:text-xl font-bold tracking-tight text-[#252525] group-hover:text-[#C62828] transition-colors whitespace-nowrap">
                 Blood Bank <span className="text-[#C62828]">Halsha</span>
               </span>
-              <span className="text-xs font-medium text-gray-500 tracking-wide uppercase">
+              <span className="hidden sm:block text-[10px] xl:text-xs font-medium text-gray-500 tracking-wide uppercase whitespace-nowrap">
                 Donate Blood. Save Lives.
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+          <nav className="hidden xl:flex items-center gap-0.5 2xl:gap-1 whitespace-nowrap">
             <Link
               to="/"
-              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`px-2 2xl:px-2.5 py-2 rounded-lg text-xs 2xl:text-sm font-semibold whitespace-nowrap transition-colors ${
                 isActive('/') 
                   ? 'text-[#C62828] bg-[#FCE8E8]' 
                   : 'text-gray-700 hover:text-[#C62828] hover:bg-rose-50/50'
@@ -109,7 +109,7 @@ export const Navbar: React.FC = () => {
             
             <Link
               to="/find-blood"
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-2 2xl:px-2.5 py-2 rounded-lg text-xs 2xl:text-sm font-semibold whitespace-nowrap transition-colors ${
                 isActive('/find-blood') 
                   ? 'text-[#C62828] bg-[#FCE8E8]' 
                   : 'text-gray-700 hover:text-[#C62828] hover:bg-rose-50/50'
@@ -121,7 +121,7 @@ export const Navbar: React.FC = () => {
 
             <Link
               to="/donor-center"
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-2 2xl:px-2.5 py-2 rounded-lg text-xs 2xl:text-sm font-semibold whitespace-nowrap transition-colors ${
                 isActive('/donor-center') 
                   ? 'text-[#C62828] bg-[#FCE8E8]' 
                   : 'text-gray-700 hover:text-[#C62828] hover:bg-rose-50/50'
@@ -134,7 +134,7 @@ export const Navbar: React.FC = () => {
             {user && isDonor && (
               <Link
                 to="/dashboard#incoming-requests"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                className={`flex items-center gap-1.5 px-2 2xl:px-2.5 py-2 rounded-lg text-xs 2xl:text-sm font-semibold whitespace-nowrap transition-colors ${
                   location.pathname === '/dashboard' && location.hash === '#incoming-requests'
                     ? 'text-[#C62828] bg-[#FCE8E8]'
                     : 'text-gray-700 hover:text-[#C62828] hover:bg-rose-50/50'
@@ -147,7 +147,7 @@ export const Navbar: React.FC = () => {
 
             <Link
               to="/blood-request"
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-2 2xl:px-2.5 py-2 rounded-lg text-xs 2xl:text-sm font-semibold whitespace-nowrap transition-colors ${
                 isActive('/blood-request') 
                   ? 'text-red-700 bg-red-100' 
                   : 'text-red-600 hover:text-red-700 hover:bg-red-50'
@@ -159,7 +159,7 @@ export const Navbar: React.FC = () => {
 
             <Link
               to="/about"
-              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`px-2 2xl:px-2.5 py-2 rounded-lg text-xs 2xl:text-sm font-semibold whitespace-nowrap transition-colors ${
                 isActive('/about') 
                   ? 'text-[#C62828] bg-[#FCE8E8]' 
                   : 'text-gray-700 hover:text-[#C62828] hover:bg-rose-50/50'
@@ -170,7 +170,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Desktop Right CTA / User Section */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden xl:flex items-center gap-2 shrink-0">
             {loading ? (
               <div className="w-9 h-9 rounded-full bg-gray-100 animate-pulse" />
             ) : user ? (
@@ -207,7 +207,7 @@ export const Navbar: React.FC = () => {
                         {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
                       </div>
                     )}
-                    <span className="text-sm font-medium text-gray-800 max-w-[120px] truncate">
+                    <span className="text-sm font-medium text-gray-800 max-w-[88px] 2xl:max-w-[120px] truncate">
                       {user.displayName?.split(' ')[0] || 'My Account'}
                     </span>
                     <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
@@ -331,7 +331,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile menu button & quick notifications */}
-          <div className="flex md:hidden items-center gap-1.5">
+          <div className="flex xl:hidden items-center gap-1.5 shrink-0">
             {user && (
               <Link
                 to="/notifications"
@@ -365,7 +365,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-rose-100 px-4 pt-3 pb-6 space-y-3 animate-in slide-in-from-top-4 duration-200">
+        <div className="xl:hidden bg-white border-b border-rose-100 px-4 pt-3 pb-6 space-y-3 animate-in slide-in-from-top-4 duration-200">
           <div className="flex flex-col space-y-1">
             <Link
               to="/"
