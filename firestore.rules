@@ -27,6 +27,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Private contact details for non-donor accounts
+    match /userPrivate/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
     // 2. Public Donors collection
     match /donors/{donorId} {
       allow read: if true; // Searchable by public without exposing contact info
