@@ -140,18 +140,30 @@ export async function submitBloodRequest(params: CreateBloodRequestParams): Prom
           updatedAt: now
         });
 
-        await addDoc(collection(db, 'notifications'), {
-          recipientUserId: params.targetDonorId,
-          title: `Emergency ${params.bloodGroup} Blood Request`,
-          body: `Patient at ${params.hospitalName} (${params.upazila}, ${params.district}) needs ${params.unitsRequired} unit(s) of ${params.bloodGroup} blood.`,
-          type: 'blood_request',
-          requestId,
-          isRead: false,
-          createdAt: now
-        });
+        // Push and in-app notifications are dispatched securely by the backend below.
       } catch (recipErr) {
         console.warn('Recipient dispatch warning:', recipErr);
       }
+    }
+
+    // Dispatch matching blood-group push alerts through the authenticated backend.
+    try {
+      const idToken = await currentUser.getIdToken();
+      const dispatchResponse = await fetch(apiUrl(`/api/requests/${encodeURIComponent(requestId)}/dispatch-push`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ targetDonorId: params.targetDonorId || null })
+      });
+      if (!dispatchResponse.ok) {
+        const dispatchError = await dispatchResponse.json().catch(() => ({}));
+        console.warn('Push dispatch warning:', dispatchError.error || dispatchResponse.statusText);
+      }
+    } catch (dispatchError) {
+      // Request creation must remain successful even if push delivery is temporarily unavailable.
+      console.warn('Push dispatch network warning:', dispatchError);
     }
 
     return {
