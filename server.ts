@@ -5,6 +5,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { getMessaging } from 'firebase-admin/messaging';
 import { Firestore } from '@google-cloud/firestore';
 
 dotenv.config();
@@ -1004,6 +1005,107 @@ app.post('/api/donor/apply-blue-verification', async (req: Request, res: Respons
  * - Atomically increments unitsFulfilled
  * - Dispatches notifications to requester and donor
  */
+/**
+ * POST /api/requests/:requestId/dispatch-push
+ * Called immediately after a request is created. Sends FCM push only to
+ * available donors matching the request blood group (or the selected donor).
+ */
+app.post('/api/requests/:requestId/dispatch-push', async (req: Request, res: Response) => {
+  const user = await verifyToken(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required.' });
+
+  try {
+    const db = getFirestore();
+    const requestRef = db.collection('bloodRequests').doc(req.params.requestId);
+    const requestDoc = await requestRef.get();
+    if (!requestDoc.exists) return res.status(404).json({ error: 'Blood request not found.' });
+
+    const request = requestDoc.data()!;
+    if (request.requesterId !== user.uid) {
+      return res.status(403).json({ error: 'Only the request owner can dispatch its alerts.' });
+    }
+
+    const targetDonorId = typeof req.body?.targetDonorId === 'string' ? req.body.targetDonorId : null;
+    let donorIds: string[] = [];
+
+    if (targetDonorId) {
+      const target = await db.collection('donors').doc(targetDonorId).get();
+      if (target.exists && target.data()?.isAvailable === true &&
+          target.data()?.bloodGroup === request.bloodGroup &&
+          target.data()?.status !== 'suspended') donorIds = [targetDonorId];
+    } else {
+      const donors = await db.collection('donors')
+        .where('bloodGroup', '==', request.bloodGroup)
+        .where('isAvailable', '==', true)
+        .get();
+      donorIds = donors.docs
+        .filter((d: any) => d.data().status !== 'suspended' && d.id !== user.uid)
+        .map((d: any) => d.id);
+    }
+
+    const now = new Date().toISOString();
+    const title = `Emergency ${request.bloodGroup} Blood Request`;
+    const body = `Patient at ${request.hospitalName} (${request.upazila}, ${request.district}) needs ${request.unitsRequired} unit(s) of ${request.bloodGroup} blood.`;
+    let tokenCount = 0;
+    let pushSuccessCount = 0;
+
+    for (const donorId of donorIds) {
+      // In-app notification is persisted independently of browser permission.
+      const notificationRef = db.collection('notifications').doc();
+      await notificationRef.set({
+        id: notificationRef.id,
+        recipientUserId: donorId,
+        title,
+        body,
+        type: 'blood_request',
+        requestId: req.params.requestId,
+        isRead: false,
+        createdAt: now
+      });
+
+      const tokensSnap = await db.collection('userFcmTokens').where('userId', '==', donorId).get();
+      const tokens = tokensSnap.docs.map((d: any) => ({ id: d.id, token: d.data().token }))
+        .filter((t: any) => typeof t.token === 'string' && t.token.length > 0);
+      tokenCount += tokens.length;
+
+      for (const tokenRecord of tokens) {
+        try {
+          await getMessaging().send({
+            token: tokenRecord.token,
+            notification: { title, body },
+            data: {
+              type: 'blood_request',
+              requestId: req.params.requestId,
+              url: `/requests/${req.params.requestId}`,
+              tag: `blood-request-${req.params.requestId}`
+            },
+            webpush: {
+              fcmOptions: { link: `https://blood-bank-halsha.web.app/requests/${req.params.requestId}` },
+              notification: {
+                icon: 'https://blood-bank-halsha.web.app/blood-drop-logo.svg',
+                badge: 'https://blood-bank-halsha.web.app/blood-drop-logo.svg',
+                tag: `blood-request-${req.params.requestId}`,
+                renotify: true
+              }
+            }
+          });
+          pushSuccessCount++;
+        } catch (pushErr: any) {
+          if (['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'].includes(pushErr?.code)) {
+            await db.collection('userFcmTokens').doc(tokenRecord.id).delete().catch(() => undefined);
+          }
+          console.warn('FCM push delivery failed for donor token:', pushErr?.message || pushErr);
+        }
+      }
+    }
+
+    return res.json({ success: true, notifiedDonors: donorIds.length, registeredTokens: tokenCount, pushSent: pushSuccessCount });
+  } catch (err: any) {
+    console.error('Blood request push dispatch error:', err);
+    return res.status(500).json({ error: 'Failed to dispatch donor notifications.' });
+  }
+});
+
 app.post('/api/requests/:requestId/accept', async (req: Request, res: Response) => {
   const user = await verifyToken(req);
   if (!user) {
