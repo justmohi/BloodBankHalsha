@@ -548,7 +548,8 @@ export const Navbar: React.FC = () => {
                   />
                 </svg>
                 Login with Google
-              </button>
+                </button>
+              </div>
             )}
           </div>
         </div>
