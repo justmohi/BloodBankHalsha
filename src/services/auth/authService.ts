@@ -5,10 +5,12 @@ import {
   getRedirectResult, 
   signOut, 
   onAuthStateChanged,
+  updateProfile,
   NextOrObserver
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { auth, googleProvider, db, handleFirestoreError, OperationType } from '@/src/services/firebase/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, googleProvider, db, storage, handleFirestoreError, OperationType } from '@/src/services/firebase/firebase';
 import { UserProfile, PublicDonor } from '@/src/types';
 
 export interface UserAuthSyncResult {
@@ -170,4 +172,54 @@ export async function syncUserProfile(user: FirebaseUser): Promise<UserAuthSyncR
  */
 export function subscribeToAuthState(callback: NextOrObserver<FirebaseUser | null>) {
   return onAuthStateChanged(auth, callback);
+}
+
+
+export interface UpdateAccountProfileParams {
+  displayName: string;
+  phoneNumber: string;
+  photoFile?: File | null;
+}
+
+export async function updateAccountProfile(params: UpdateAccountProfileParams): Promise<void> {
+  const currentUser = auth.currentUser;
+  if (!currentUser) throw new Error('Please sign in to update your profile.');
+
+  const displayName = params.displayName.trim();
+  const phoneNumber = params.phoneNumber.trim();
+  if (displayName.length < 2) throw new Error('Name must contain at least 2 characters.');
+  if (phoneNumber && !/^[+0-9()\-\s]{7,20}$/.test(phoneNumber)) {
+    throw new Error('Enter a valid mobile number.');
+  }
+
+  let photoURL = currentUser.photoURL || null;
+  if (params.photoFile) {
+    if (!params.photoFile.type.startsWith('image/')) throw new Error('Please select an image file.');
+    if (params.photoFile.size > 5 * 1024 * 1024) throw new Error('Profile photo must be 5 MB or smaller.');
+    const extension = params.photoFile.name.split('.').pop()?.replace(/[^a-zA-Z0-9]/g, '') || 'jpg';
+    const photoRef = ref(storage, `account_photos/${currentUser.uid}/profile_${Date.now()}.${extension}`);
+    const uploaded = await uploadBytes(photoRef, params.photoFile);
+    photoURL = await getDownloadURL(uploaded.ref);
+  }
+
+  const now = new Date().toISOString();
+  await updateProfile(currentUser, { displayName, photoURL });
+  await updateDoc(doc(db, 'users', currentUser.uid), {
+    displayName,
+    photoURL,
+    phoneNumber: phoneNumber || null,
+    updatedAt: now
+  });
+
+  // Keep donor-facing public name/photo synchronized; keep the phone in private data only.
+  const donorRef = doc(db, 'donors', currentUser.uid);
+  const donorSnap = await getDoc(donorRef);
+  if (donorSnap.exists()) {
+    await updateDoc(donorRef, { fullName: displayName, photoURL, updatedAt: now });
+    const privateRef = doc(db, 'donorPrivate', currentUser.uid);
+    const privateSnap = await getDoc(privateRef);
+    if (privateSnap.exists()) {
+      await updateDoc(privateRef, { mobileNumber: phoneNumber, updatedAt: now });
+    }
+  }
 }
