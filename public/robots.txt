@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://blood-bank-halsha.web.app/sitemap.xml
