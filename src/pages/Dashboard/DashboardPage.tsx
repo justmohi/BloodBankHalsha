@@ -250,6 +250,14 @@ export const DashboardPage: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
+              to="/account-settings"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-rose-50/50 hover:border-[#C62828]/30 text-gray-800 text-xs font-semibold transition-colors shadow-2xs"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-[#C62828]" />
+              Edit Account Profile
+            </Link>
+
+            <Link
               to="/blood-request"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C62828] text-white text-xs font-semibold hover:bg-[#B71C1C] transition-colors shadow-xs"
             >
