@@ -508,11 +508,27 @@ export const Navbar: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={handleGoogleLogin}
-                className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-sm font-semibold shadow-xs"
-              >
+              <div className="space-y-2">
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center px-4 py-3 rounded-xl bg-[#C62828] hover:bg-[#B71C1C] text-white text-sm font-bold shadow-xs"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/login?mode=signup"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center px-4 py-3 rounded-xl border border-[#C62828]/30 bg-rose-50 hover:bg-rose-100 text-[#C62828] text-sm font-bold"
+                >
+                  Create New Account / Sign Up
+                </Link>
+                <div className="flex items-center gap-3 py-1 text-[11px] text-gray-400"><span className="h-px flex-1 bg-gray-200" /><span>OR</span><span className="h-px flex-1 bg-gray-200" /></div>
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-sm font-semibold shadow-xs"
+                >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
