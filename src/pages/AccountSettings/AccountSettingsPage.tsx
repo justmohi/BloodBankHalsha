@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, CheckCircle2, Loader2, Save, UserRound } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { getPrivateDonor } from '@/src/services/donors/donorService';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/src/services/firebase/firebase';
 import { updateAccountProfile } from '@/src/services/auth/authService';
 
 export const AccountSettingsPage: React.FC = () => {
@@ -19,9 +21,12 @@ export const AccountSettingsPage: React.FC = () => {
 
   useEffect(() => {
     let active = true;
-    if (isDonor && user) {
-      getPrivateDonor(user.uid).then((profile) => {
-        if (active && profile?.mobileNumber) setPhoneNumber(profile.mobileNumber);
+    if (user) {
+      const loadContact = isDonor
+        ? getPrivateDonor(user.uid).then((profile) => profile?.mobileNumber || '')
+        : getDoc(doc(db, 'userPrivate', user.uid)).then((snap) => snap.exists() ? snap.data().mobileNumber || '' : '');
+      loadContact.then((number) => {
+        if (active && number) setPhoneNumber(number);
       }).finally(() => { if (active) setLoadingPhone(false); });
     } else {
       setLoadingPhone(false);
