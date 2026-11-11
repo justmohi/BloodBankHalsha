@@ -197,7 +197,7 @@ export async function updateAccountProfile(params: UpdateAccountProfileParams): 
     if (!params.photoFile.type.startsWith('image/')) throw new Error('Please select an image file.');
     if (params.photoFile.size > 5 * 1024 * 1024) throw new Error('Profile photo must be 5 MB or smaller.');
     const extension = params.photoFile.name.split('.').pop()?.replace(/[^a-zA-Z0-9]/g, '') || 'jpg';
-    const photoRef = ref(storage, `account_photos/${currentUser.uid}/profile_${Date.now()}.${extension}`);
+    const photoRef = ref(storage, `donorPhotos/${currentUser.uid}/account_profile_${Date.now()}.${extension}`);
     const uploaded = await uploadBytes(photoRef, params.photoFile);
     photoURL = await getDownloadURL(uploaded.ref);
   }
