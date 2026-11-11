@@ -54,6 +54,35 @@ export function validateRequestDate(dateStr: string): boolean {
 }
 
 /**
+ * Ask the authenticated Render backend to create donor inbox alerts and send FCM push.
+ * Request creation remains successful if push delivery is temporarily unavailable.
+ */
+async function dispatchBloodRequestAlerts(requestId: string, targetDonorId?: string | null): Promise<void> {
+  const currentUser = auth.currentUser;
+  if (!currentUser) return;
+  try {
+    const idToken = await currentUser.getIdToken();
+    const response = await fetch(apiUrl(`/api/requests/${encodeURIComponent(requestId)}/dispatch-push`), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`
+      },
+      body: JSON.stringify({ targetDonorId: targetDonorId || null })
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      console.warn('Blood request push dispatch warning:', error.error || response.statusText);
+    } else {
+      const result = await response.json();
+      console.info('Blood request alert dispatch result:', result);
+    }
+  } catch (error) {
+    console.warn('Blood request push dispatch network warning:', error);
+  }
+}
+
+/**
  * Submit Blood Request using backend callable function if deployed,
  * or direct authorized Firestore write following the exact Android schema.
  */
@@ -87,6 +116,7 @@ export async function submitBloodRequest(params: CreateBloodRequestParams): Prom
     });
 
     if (result.data?.requestId) {
+      await dispatchBloodRequestAlerts(result.data.requestId, params.targetDonorId);
       return {
         requestId: result.data.requestId,
         status: result.data.status || 'pending',
@@ -147,24 +177,7 @@ export async function submitBloodRequest(params: CreateBloodRequestParams): Prom
     }
 
     // Dispatch matching blood-group push alerts through the authenticated backend.
-    try {
-      const idToken = await currentUser.getIdToken();
-      const dispatchResponse = await fetch(apiUrl(`/api/requests/${encodeURIComponent(requestId)}/dispatch-push`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`
-        },
-        body: JSON.stringify({ targetDonorId: params.targetDonorId || null })
-      });
-      if (!dispatchResponse.ok) {
-        const dispatchError = await dispatchResponse.json().catch(() => ({}));
-        console.warn('Push dispatch warning:', dispatchError.error || dispatchResponse.statusText);
-      }
-    } catch (dispatchError) {
-      // Request creation must remain successful even if push delivery is temporarily unavailable.
-      console.warn('Push dispatch network warning:', dispatchError);
-    }
+    await dispatchBloodRequestAlerts(requestId, params.targetDonorId);
 
     return {
       requestId,
