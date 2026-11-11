@@ -3,14 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Blood Bank Halsha</title>
-    <link rel="icon" type="image/svg+xml" href="/blood-drop-logo.svg" />
+    <title>Blood Bank Halsha | Find Voluntary Blood Donors in Bangladesh</title>
+    <meta name="description" content="Find voluntary blood donors by blood group and location in Halsha, Mirpur, Kushtia and across Bangladesh. Blood Bank Halsha connects donors and patients." />
     <meta name="theme-color" content="#C62828" />
-    <meta name="description" content="Official web application for Blood Bank Halsha. Connect with voluntary blood donors, search donors by district and upazila, create and track emergency blood requests." />
-    <meta property="og:title" content="Blood Bank Halsha" />
-    <meta property="og:description" content="Official web application for Blood Bank Halsha. Connect with voluntary blood donors, search donors by district and upazila, create and track emergency blood requests." />
+    <meta name="application-name" content="Blood Bank Halsha" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="icon" type="image/svg+xml" href="/blood-drop-logo.svg" />
+    <link rel="canonical" href="https://blood-bank-halsha.web.app/" />
+    <meta property="og:site_name" content="Blood Bank Halsha" />
+    <meta property="og:title" content="Blood Bank Halsha | Find Voluntary Blood Donors in Bangladesh" />
+    <meta property="og:description" content="Connect with voluntary blood donors. Search by blood group, district and upazila across Bangladesh." />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:url" content="https://blood-bank-halsha.web.app/" />
+    <meta property="og:locale" content="en_BD" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://blood-bank-halsha.web.app/#organization",
+            "name": "Blood Bank Halsha",
+            "url": "https://blood-bank-halsha.web.app/",
+            "logo": "https://blood-bank-halsha.web.app/blood-drop-logo.svg",
+            "description": "A voluntary blood donor network connecting donors and patients in Halsha, Kushtia and across Bangladesh."
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://blood-bank-halsha.web.app/#website",
+            "url": "https://blood-bank-halsha.web.app/",
+            "name": "Blood Bank Halsha",
+            "inLanguage": ["en", "bn"],
+            "publisher": { "@id": "https://blood-bank-halsha.web.app/#organization" }
+          }
+        ]
+      }
+    </script>
     <script>
       // Gracefully prevent unhandled rejection from dev server WebSocket disconnection in containerized proxy
       window.addEventListener('unhandledrejection', function(event) {
@@ -48,4 +77,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
