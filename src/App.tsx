@@ -17,6 +17,7 @@ import { AboutPage } from '@/src/pages/About/AboutPage';
 import { PrivacyPage } from '@/src/pages/Privacy/PrivacyPage';
 import { TermsPage } from '@/src/pages/Terms/TermsPage';
 import { DashboardPage } from '@/src/pages/Dashboard/DashboardPage';
+import { AccountSettingsPage } from '@/src/pages/AccountSettings/AccountSettingsPage';
 import { NotificationsPage } from '@/src/pages/Notifications/NotificationsPage';
 import { MyRequestsPage } from '@/src/pages/MyRequests/MyRequestsPage';
 import { BloodRequestDetailsPage } from '@/src/pages/RequestDetails/BloodRequestDetailsPage';
@@ -62,6 +63,14 @@ function MainAppLayout() {
           <Route path="/terms" element={<TermsPage />} />
 
           {/* Protected Routes requiring authentication */}
+          <Route
+            path="/account-settings"
+            element={
+              <ProtectedRoute>
+                <AccountSettingsPage />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/dashboard" 
             element={
